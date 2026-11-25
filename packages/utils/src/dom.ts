@@ -125,11 +125,37 @@ export function isContainingBlock(
   );
 }
 
+// Safari's filter/backdrop-filter containing blocks depend on its version, so
+// don't predict them: count one only when the browser itself reports it as the
+// element's offsetParent. For fixed elements Safari reports it since 26.1;
+// older versions report null and keep the old behavior. Inline boxes are
+// skipped: Safari reports them but positions from the enclosing block.
+export function isReportedContainingBlock(
+  element: Element,
+  ancestor: Element,
+): boolean {
+  if (!isHTMLElement(element) || element.offsetParent !== ancestor) {
+    return false;
+  }
+
+  const css = getComputedStyle(ancestor);
+  return (
+    css.display !== 'inline' &&
+    (isNotNone(css.filter) ||
+      isNotNone(
+        css.backdropFilter || css.getPropertyValue('-webkit-backdrop-filter'),
+      ))
+  );
+}
+
 export function getContainingBlock(element: Element): HTMLElement | null {
   let currentNode: Node | null = getParentNode(element);
 
   while (isHTMLElement(currentNode) && !isLastTraversableNode(currentNode)) {
-    if (isContainingBlock(currentNode)) {
+    if (
+      isContainingBlock(currentNode) ||
+      isReportedContainingBlock(element, currentNode)
+    ) {
       return currentNode;
     } else if (isTopLayer(currentNode)) {
       return null;

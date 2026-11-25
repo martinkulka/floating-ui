@@ -17,6 +17,7 @@ import {AutoUpdate, AutoUpdateRootResize} from './spec/AutoUpdate';
 import {Border} from './spec/Border';
 import {ContainingBlock} from './spec/ContainingBlock';
 import {DecimalSize} from './spec/DecimalSize';
+import {FilterContainingBlock} from './spec/FilterContainingBlock';
 import {FixedClipping} from './spec/FixedClipping';
 import {Flip} from './spec/Flip';
 import {Hide} from './spec/Hide';
@@ -63,6 +64,7 @@ const ROUTES = [
   {path: 'shadow-DOM', component: ShadowDOM},
   {path: 'containing-block', component: ContainingBlock},
   {path: 'fixed-clipping', component: FixedClipping},
+  {path: 'filter-containing-block', component: FilterContainingBlock},
   {path: 'virtual-element', component: VirtualElement},
   {path: 'perf', component: Perf},
   {path: 'iframe', component: IFrame},

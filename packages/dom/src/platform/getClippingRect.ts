@@ -15,6 +15,7 @@ import {
   getParentNode,
   isContainingBlock,
   isLastTraversableNode,
+  isReportedContainingBlock,
   isTopLayer,
 } from '@floating-ui/utils/dom';
 
@@ -97,6 +98,8 @@ function getClippingElementAncestors(
     (el) => isElement(el) && getNodeName(el) !== 'body',
   ) as Array<Element>;
   let lastKeptComputedStyle: CSSStyleDeclaration | null = null;
+  // The last kept element of the containing block chain.
+  let chainElement: Element = element;
   const elementIsFixed = getComputedStyle(element).position === 'fixed';
   let currentNode: Node | null = elementIsFixed
     ? getParentNode(element)
@@ -105,7 +108,9 @@ function getClippingElementAncestors(
   // https://developer.mozilla.org/en-US/docs/Web/CSS/Containing_block#identifying_the_containing_block
   while (isElement(currentNode) && !isLastTraversableNode(currentNode)) {
     const computedStyle = getComputedStyle(currentNode);
-    const currentNodeIsContaining = isContainingBlock(currentNode);
+    const currentNodeIsContaining =
+      isContainingBlock(currentNode) ||
+      isReportedContainingBlock(chainElement, currentNode);
     // Position of the containing block chain below the current node. A fixed
     // element whose containing block hasn't been found yet is a fixed chain.
     const lastPosition = lastKeptComputedStyle
@@ -128,6 +133,7 @@ function getClippingElementAncestors(
     } else {
       // The kept node carries the chain position for the next iteration.
       lastKeptComputedStyle = computedStyle;
+      chainElement = currentNode;
     }
 
     if (isTopLayer(currentNode)) {
