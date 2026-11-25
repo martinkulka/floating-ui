@@ -135,8 +135,12 @@ async function measure(
   if (scenario.scroll === 'inner') inner.scrollTop = 48;
   if (scenario.scroll === 'window') window.scrollTo(0, 48);
 
-  // Floating UI must only read the DOM.
-  const observer = new MutationObserver(() => {});
+  // Floating UI must only read the DOM. Records are delivered to the callback
+  // between the `await`s below, so count them there.
+  let mutations = 0;
+  const observer = new MutationObserver((records) => {
+    mutations += records.length;
+  });
   const observed = {
     subtree: true,
     childList: true,
@@ -193,7 +197,7 @@ async function measure(
       }),
     ],
   });
-  const mutations = observer.takeRecords().length;
+  mutations += observer.takeRecords().length;
   observer.disconnect();
   if (!isActive()) return null;
 
